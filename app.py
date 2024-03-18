@@ -1,4 +1,5 @@
 import plotly.express as px
+from shiny import reactive
 from shiny.express import input, render, ui
 from shinywidgets import render_plotly
 from palmerpenguins import load_penguins
@@ -51,6 +52,7 @@ with ui.layout_columns():
     # Data Table card
     with ui.card():
         ui.card_header("Data Table")
+
         @render.data_frame
         def penguin_datatable():
             return render.DataTable(penguins_df)
@@ -58,9 +60,11 @@ with ui.layout_columns():
     # Data Grid card
     with ui.card():
         ui.card_header("Data Grid")
+
         @render.data_frame
         def penguin_datagrid():
             return render.DataGrid(penguins_df)
+
 
 # Layout columns for visualizations
 with ui.layout_columns():
@@ -68,6 +72,7 @@ with ui.layout_columns():
     with ui.navset_card_tab(id="plot_tabs"):
         # Plotly Histogram tab
         with ui.nav_panel("Plotly Histogram"):
+
             @render_plotly
             def plotly_histogram():
                 plotly_hist = px.histogram(
@@ -84,6 +89,7 @@ with ui.layout_columns():
 
         # Seaborn Histogram tab
         with ui.nav_panel("Seaborn Histogram"):
+
             @render.plot
             def seaborn_histogram():
                 seaborn_hist = sns.histplot(
@@ -97,6 +103,7 @@ with ui.layout_columns():
 
         # Plotly Scatterplot tab
         with ui.nav_panel("Plotly Scatterplot"):
+
             @render_plotly
             def plotly_scatterplot():
                 plotly_scatter = px.scatter(
@@ -115,6 +122,7 @@ with ui.layout_columns():
 
         # Grouped Bar Plot tab
         with ui.nav_panel("Grouped Bar Plot"):
+
             @render_plotly
             def grouped_bar_plot():
                 grouped_bar = px.bar(
@@ -127,3 +135,18 @@ with ui.layout_columns():
                     labels={"bill_length_mm": "Average Bill Length (mm)"},
                 )
                 return grouped_bar
+
+
+# --------------------------------------------------------
+# Reactive calculations and effects
+# --------------------------------------------------------
+
+# Add a reactive calculation to filter the data
+# By decorating the function with @reactive, we can use the function to filter the data
+# The function will be called whenever an input functions used to generate that output changes.
+# Any output that depends on the reactive function (e.g., filtered_data()) will be updated when the data changes.
+
+
+@reactive.calc
+def filtered_data():
+    return penguins_df
